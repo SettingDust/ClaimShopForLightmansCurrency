@@ -101,6 +101,8 @@ dependencies {
     minecraft(catalog.minecraft.forge)
 
     implementation(catalog.kotlin.forge)
+
+    implementation(fg.deobf(catalog.lightmans.currency.get()))
 }
 
 val metadata =
@@ -111,7 +113,7 @@ val metadata =
         "name" to name,
         "version" to version,
         "description" to description,
-        "source" to "https://github.com/SettingDust/UnloadedVillagerActivity",
+        "source" to "https://github.com/SettingDust/ClaimShopForLightmansCurrency",
         "minecraft" to "~1.20",
         "fabric_loader" to ">=0.15",
         "fabric_kotlin" to ">=1.11",
