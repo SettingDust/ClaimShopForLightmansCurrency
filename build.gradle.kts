@@ -114,16 +114,12 @@ val metadata =
         "version" to version,
         "description" to description,
         "source" to "https://github.com/SettingDust/ClaimShopForLightmansCurrency",
-        "minecraft" to "~1.20",
-        "fabric_loader" to ">=0.15",
-        "fabric_kotlin" to ">=1.11",
-        "modmenu" to "*",
     )
 
 tasks {
     withType<ProcessResources> {
         inputs.properties(metadata)
-        filesMatching(listOf("fabric.mod.json", "*.mixins.json")) { expand(metadata) }
+        filesMatching(listOf("META-INF/mods.toml", "*.mixins.json")) { expand(metadata) }
     }
 
     withType<Jar> {
