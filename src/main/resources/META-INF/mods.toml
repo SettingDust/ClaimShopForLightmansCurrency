@@ -1,0 +1,24 @@
+# Make sure this is set to "kotlinforforge"
+modLoader = "kotlinforforge"
+# Make sure this is set to the appropriate version range
+loaderVersion = "[4,)"
+
+[[mods]]
+modId = "${id}"
+version = "${version}"
+displayName = "${name}"
+authors = "${author}"
+description = "${description}"
+displayURL = "${source}"
+[[dependencies.${id}]]
+modId = "forge"
+mandatory = true
+versionRange = "[40,)"
+ordering = "NONE"
+side = "BOTH"
+[[dependencies.${id}]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.20.1]"
+ordering = "NONE"
+side = "BOTH"
