@@ -15,6 +15,7 @@ plugins {
 
     alias(catalog.plugins.forge.gradle)
     alias(catalog.plugins.librarian.forgegradle)
+    alias(catalog.plugins.mixin)
 }
 
 apply(
@@ -119,7 +120,7 @@ val metadata =
 tasks {
     withType<ProcessResources> {
         inputs.properties(metadata)
-        filesMatching(listOf("META-INF/mods.toml", "*.mixins.json")) { expand(metadata) }
+        filesMatching(listOf("META-INF/mods.toml", "*.mixins.json", "pack.mcmeta")) { expand(metadata) }
     }
 
     withType<Jar> {

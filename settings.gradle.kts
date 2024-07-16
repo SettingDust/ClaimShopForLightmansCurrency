@@ -9,6 +9,8 @@ apply("https://github.com/SettingDust/MinecraftGradleScripts/raw/main/forge.grad
 
 apply("https://github.com/SettingDust/MinecraftGradleScripts/raw/main/parchmentmc.gradle.kts")
 
+apply("https://github.com/SettingDust/MinecraftGradleScripts/raw/main/mixin.gradle.kts")
+
 dependencyResolutionManagement.versionCatalogs.named("catalog") {
     library("lightmans-currency", "maven.modrinth", "lightmans-currency").version("$minecraft-2.2.2.2")
 }
