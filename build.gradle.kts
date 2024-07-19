@@ -19,10 +19,10 @@ plugins {
 }
 
 apply(
-    "https://github.com/SettingDust/MinecraftGradleScripts/raw/main/gradle_issue_15754.gradle.kts"
-)
+    "https://github.com/SettingDust/MinecraftGradleScripts/raw/main/gradle_issue_15754.gradle.kts")
 
 group = "settingdust.lightmanscurrency.claimshop"
+
 val gitVersion: Closure<String> by extra
 
 version = gitVersion()
@@ -50,12 +50,11 @@ java {
     withJavadocJar()
 }
 
-kotlin {
-    jvmToolchain(17)
-}
+kotlin { jvmToolchain(17) }
 
 minecraft {
-    mappings("parchment", "${catalog.versions.parchmentmc.get()}-${catalog.versions.minecraft.get()}")
+    mappings(
+        "parchment", "${catalog.versions.parchmentmc.get()}-${catalog.versions.minecraft.get()}")
 
     runs.all {
         mods {
@@ -64,11 +63,7 @@ minecraft {
             property("forge.logging.console.level", "debug")
             property("forge.enabledGameTestNamespaces", id)
             property("terminal.jline", "true")
-            mods {
-                create(id) {
-                    source(sourceSets.main.get())
-                }
-            }
+            mods { create(id) { source(sourceSets.main.get()) } }
         }
     }
 
@@ -90,13 +85,17 @@ minecraft {
                 "--output",
                 file("src/generated/resources/"),
                 "--existing",
-                file("src/main/resources")
-            )
+                file("src/main/resources"))
         }
     }
 }
 
 sourceSets.main.configure { resources.srcDirs("src/generated/resources/") }
+
+repositories {
+    maven("https://maven.ftb.dev/releases") { content { includeGroup("dev.ftb.mods") } }
+    maven("https://maven.architectury.dev/") { content { includeGroup("dev.architectury") } }
+}
 
 dependencies {
     minecraft(catalog.minecraft.forge)
@@ -104,6 +103,8 @@ dependencies {
     implementation(catalog.kotlin.forge)
 
     implementation(fg.deobf(catalog.lightmans.currency.get()))
+    implementation(fg.deobf(catalog.ftb.chunks.get()))
+    runtimeOnly(fg.deobf(catalog.architectury.get()))
 }
 
 val metadata =
@@ -120,7 +121,9 @@ val metadata =
 tasks {
     withType<ProcessResources> {
         inputs.properties(metadata)
-        filesMatching(listOf("META-INF/mods.toml", "*.mixins.json", "pack.mcmeta")) { expand(metadata) }
+        filesMatching(listOf("META-INF/mods.toml", "*.mixins.json", "pack.mcmeta")) {
+            expand(metadata)
+        }
     }
 
     withType<Jar> {
@@ -134,9 +137,8 @@ tasks {
                     "Implementation-Title" to project.name,
                     "Implementation-Version" to project.version.toString(),
                     "Implementation-Vendor" to author,
-                    "Implementation-Timestamp" to SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(Date())
-                )
-            )
+                    "Implementation-Timestamp" to
+                        SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(Date())))
         }
         finalizedBy("reobfJar")
     }
