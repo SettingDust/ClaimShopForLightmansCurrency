@@ -40,8 +40,7 @@ class ClaimNotification : TaxableNotification {
     companion object {
         val TYPE =
             NotificationType(
-                ClaimShopForLightmansCurrency.location("claim_trade"), ::ClaimNotification
-            )
+                ClaimShopForLightmansCurrency.location("claim_trade"), ::ClaimNotification)
     }
 
     lateinit var pos: ChunkPos
@@ -53,8 +52,7 @@ class ClaimNotification : TaxableNotification {
     lateinit var customer: String
         private set
 
-    lateinit var category: TraderCategory
-        private set
+    private lateinit var category: TraderCategory
 
     constructor(
         taxesPaid: MoneyValue,
@@ -113,6 +111,14 @@ class ClaimTradeEditTab(menu: ITraderStorageMenu) : TraderStorageTab(menu) {
         lateinit var tradeDisplay: TradeButton
         lateinit var priceSelection: MoneyValueWidget
 
+        override fun tabButtonVisible(): Boolean {
+            return false
+        }
+
+        override fun blockInventoryClosing(): Boolean {
+            return true
+        }
+
         override fun getIcon(): IconData = IconAndButtonUtil.ICON_TRADELIST
 
         override fun getTooltip() = LCText.TOOLTIP_TRADER_EDIT_TRADES.get()
@@ -127,9 +133,7 @@ class ClaimTradeEditTab(menu: ITraderStorageMenu) : TraderStorageTab(menu) {
                         screenArea.pos.offset(15, 55),
                         if (firstOpen) null else priceSelection,
                         trade?.cost ?: MoneyValue.empty(),
-                        ::onValueChanged
-                    )
-                )
+                        ::onValueChanged))
             priceSelection.drawBG = false
         }
 
@@ -166,14 +170,11 @@ class ClaimTradeEditTab(menu: ITraderStorageMenu) : TraderStorageTab(menu) {
 
     override fun canOpen(player: Player) = true
 
-    override fun onTabOpen() {
-    }
+    override fun onTabOpen() {}
 
-    override fun onTabClose() {
-    }
+    override fun onTabClose() {}
 
-    override fun addStorageMenuSlots(addSlot: Function<Slot, Slot>) {
-    }
+    override fun addStorageMenuSlots(addSlot: Function<Slot, Slot>) {}
 
     override fun receiveMessage(data: LazyPacketData) {
         when {
@@ -209,9 +210,7 @@ class ClaimTradeButtonRenderer(trade: ClaimTradeData) : TradeRenderManager<Claim
         mutableListOf(
             DisplayEntry.of(
                 trade.cost,
-                if (context.isStorageMode) LCText.TOOLTIP_TRADE_EDIT_PRICE.getAsList() else null
-            )
-        )
+                if (context.isStorageMode) LCText.TOOLTIP_TRADE_EDIT_PRICE.getAsList() else null))
 
     override fun outputDisplayArea(context: TradeContext) = DisplayData(58, 1, 34, 16)
 
