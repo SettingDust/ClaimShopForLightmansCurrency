@@ -13,7 +13,11 @@ apply("https://github.com/SettingDust/MinecraftGradleScripts/raw/main/mixin.grad
 
 dependencyResolutionManagement.versionCatalogs.named("catalog") {
     library("lightmans-currency", "maven.modrinth", "lightmans-currency").version("$minecraft-2.2.2.2")
+
+    library("ftb-library", "dev.ftb.mods", "ftb-library-forge").version("2001.2.3")
+    library("ftb-teams", "dev.ftb.mods", "ftb-teams-forge").version("2001.3.0")
     library("ftb-chunks", "dev.ftb.mods", "ftb-chunks-forge").version("2001.3.1")
+
     library("architectury", "dev.architectury", "architectury-forge").version("9.2.14")
 }
 

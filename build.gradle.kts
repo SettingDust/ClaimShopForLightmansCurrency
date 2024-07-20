@@ -103,7 +103,10 @@ dependencies {
     implementation(catalog.kotlin.forge)
 
     implementation(fg.deobf(catalog.lightmans.currency.get()))
+
     implementation(fg.deobf(catalog.ftb.chunks.get()))
+    implementation(fg.deobf(catalog.ftb.library.get()))
+    implementation(fg.deobf(catalog.ftb.teams.get()))
     runtimeOnly(fg.deobf(catalog.architectury.get()))
 }
 

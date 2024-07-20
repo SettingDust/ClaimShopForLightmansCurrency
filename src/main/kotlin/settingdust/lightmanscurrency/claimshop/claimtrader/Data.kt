@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext
 import io.github.lightman314.lightmanscurrency.api.traders.TradeResult
+import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData
 import io.github.lightman314.lightmanscurrency.api.traders.TraderType
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu
@@ -115,6 +116,10 @@ open class ClaimTraderData : TraderData {
 
     companion object {
         val TYPE = TraderType(ClaimShopForLightmansCurrency.location("claim")) { ClaimTraderData() }
+
+        init {
+            TraderAPI.registerTrader(TYPE)
+        }
     }
 
     val trade: ClaimTradeData = ClaimTradeData(ChunkPos(worldPosition.pos))
@@ -151,7 +156,7 @@ open class ClaimTraderData : TraderData {
 
     override fun loadAdditional(tag: CompoundTag) {
         if ("Trade" in tag) {
-            trade.loadFromNBT(tag)
+            trade.loadFromNBT(tag.getCompound("Trade"))
         }
     }
 

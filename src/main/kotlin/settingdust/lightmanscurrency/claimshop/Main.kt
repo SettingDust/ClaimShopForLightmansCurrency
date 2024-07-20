@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager
 import settingdust.lightmanscurrency.claimshop.claimtrader.ClaimNotification
 import settingdust.lightmanscurrency.claimshop.claimtrader.ClaimTraderBlock
 import settingdust.lightmanscurrency.claimshop.claimtrader.ClaimTraderBlockEntity
+import thedarkcolour.kotlinforforge.forge.MOD_BUS
 
 @Mod(ClaimShopForLightmansCurrency.ID)
 object ClaimShopForLightmansCurrency {
@@ -16,25 +17,23 @@ object ClaimShopForLightmansCurrency {
     val LOGGER = LogManager.getLogger()!!
 
     init {
-        requireNotNull(Blocks)
-        requireNotNull(BlockEntities)
+        requireNotNull(Registries)
     }
 
     fun location(path: String) = ResourceLocation(ID, path)
 
-    object Blocks {
-        private val registry = DeferredRegister.create(ForgeRegistries.BLOCKS, ID)
+    internal object Registries {
+        val ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, ID)
+        val BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, ID)
+        val BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, ID)
 
         init {
-            registry.register("claim_trader") { ClaimTraderBlock.CLAIM_TRADER }
-        }
-    }
+            requireNotNull(ClaimTraderBlock)
+            requireNotNull(ClaimTraderBlockEntity)
 
-    object BlockEntities {
-        private val registry = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, ID)
-
-        init {
-            registry.register("claim_trader") { ClaimTraderBlockEntity.CLAIM_TRADER }
+            BLOCKS.register(MOD_BUS)
+            BLOCK_ENTITIES.register(MOD_BUS)
+            ITEMS.register(MOD_BUS)
         }
     }
 
