@@ -1,5 +1,6 @@
 package settingdust.lightmanscurrency.claimshop
 
+import com.mojang.authlib.GameProfile
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry
 import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.fml.common.Mod
@@ -10,11 +11,14 @@ import settingdust.lightmanscurrency.claimshop.claimtrader.ClaimNotification
 import settingdust.lightmanscurrency.claimshop.claimtrader.ClaimTraderBlock
 import settingdust.lightmanscurrency.claimshop.claimtrader.ClaimTraderBlockEntity
 import thedarkcolour.kotlinforforge.forge.MOD_BUS
+import java.util.*
 
 @Mod(ClaimShopForLightmansCurrency.ID)
 object ClaimShopForLightmansCurrency {
     const val ID = "claim_shop_for_lightmans_currency"
     val LOGGER = LogManager.getLogger()!!
+
+    val FAKE_PROFILE = GameProfile(UUID.fromString("c0a38ea7-6794-43e4-b7e5-19497b6390cc"), "[ClaimTrader]");
 
     init {
         requireNotNull(Registries)

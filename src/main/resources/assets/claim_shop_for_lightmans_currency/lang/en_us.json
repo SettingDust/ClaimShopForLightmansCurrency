@@ -1,3 +1,4 @@
 {
-    "notification.lightmanscurrency.claim_trade": "%1$s claimed chunk at %2$s"
+    "notification.lightmanscurrency.claim_trade": "%1$s claimed chunk at %2$s",
+    "gui.claim_shop_for_lightmans_currency.result": "Chunk at %1$s"
 }
