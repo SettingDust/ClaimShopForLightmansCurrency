@@ -1,14 +1,19 @@
 package settingdust.lightmanscurrency.claimshop
 
 import com.mojang.authlib.GameProfile
+import io.github.lightman314.lightmanscurrency.ModCreativeGroups
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry
 import net.minecraft.resources.ResourceLocation
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent
+import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import net.minecraftforge.registries.DeferredRegister
 import net.minecraftforge.registries.ForgeRegistries
 import org.apache.logging.log4j.LogManager
 import settingdust.lightmanscurrency.claimshop.claimtrader.ClaimNotification
 import settingdust.lightmanscurrency.claimshop.claimtrader.ClaimTraderBlock
+import settingdust.lightmanscurrency.claimshop.claimtrader.ClaimTraderBlock.Companion.CLAIM_TRADER
 import settingdust.lightmanscurrency.claimshop.claimtrader.ClaimTraderBlockEntity
 import thedarkcolour.kotlinforforge.forge.MOD_BUS
 import java.util.*
@@ -18,7 +23,8 @@ object ClaimShopForLightmansCurrency {
     const val ID = "claim_shop_for_lightmans_currency"
     val LOGGER = LogManager.getLogger()!!
 
-    val FAKE_PROFILE = GameProfile(UUID.fromString("c0a38ea7-6794-43e4-b7e5-19497b6390cc"), "[ClaimTrader]");
+    val FAKE_PROFILE =
+        GameProfile(UUID.fromString("c0a38ea7-6794-43e4-b7e5-19497b6390cc"), "[ClaimTrader]")
 
     init {
         requireNotNull(Registries)
@@ -26,6 +32,7 @@ object ClaimShopForLightmansCurrency {
 
     fun location(path: String) = ResourceLocation(ID, path)
 
+    @EventBusSubscriber(modid = ID, bus = Mod.EventBusSubscriber.Bus.MOD)
     internal object Registries {
         val ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, ID)
         val BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, ID)
@@ -38,6 +45,13 @@ object ClaimShopForLightmansCurrency {
             BLOCKS.register(MOD_BUS)
             BLOCK_ENTITIES.register(MOD_BUS)
             ITEMS.register(MOD_BUS)
+        }
+
+        @SubscribeEvent
+        fun addToTab(event: BuildCreativeModeTabContentsEvent) {
+            if (event.tabKey === ModCreativeGroups.MACHINE_GROUP_ID) {
+                event.accept(CLAIM_TRADER)
+            }
         }
     }
 
