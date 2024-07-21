@@ -1,0 +1,19 @@
+{
+    "variants": {
+        "facing=east": {
+            "model": "claim_shop_for_lightmans_currency:block/claim_trader",
+            "y": 90
+        },
+        "facing=north": {
+            "model": "claim_shop_for_lightmans_currency:block/claim_trader"
+        },
+        "facing=south": {
+            "model": "claim_shop_for_lightmans_currency:block/claim_trader",
+            "y": 180
+        },
+        "facing=west": {
+            "model": "claim_shop_for_lightmans_currency:block/claim_trader",
+            "y": 270
+        }
+    }
+}
