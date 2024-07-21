@@ -132,8 +132,8 @@ class ClaimTraderBlock(properties: Properties) : TraderBlockRotatable(properties
             FTBChunksAPI.api()
                 .manager
                 .getPersonalData(playerForContext.id)
-                .claim(level.server.createCommandSourceStack(), ChunkDimPos(level, pos), false)
-        playerForContext.player.sendSystemMessage(result.message)
+                ?.claim(level.server.createCommandSourceStack(), ChunkDimPos(level, pos), false)
+        result?.message?.let { playerForContext.player.sendSystemMessage(it) }
         super.onRemove(state, level, pos, newState, flag)
     }
 

@@ -107,7 +107,7 @@ dependencies {
     implementation(fg.deobf(catalog.ftb.chunks.get()))
     implementation(fg.deobf(catalog.ftb.library.get()))
     implementation(fg.deobf(catalog.ftb.teams.get()))
-    runtimeOnly(fg.deobf(catalog.architectury.get()))
+    implementation(fg.deobf(catalog.architectury.get()))
 }
 
 val metadata =

@@ -1,5 +1,11 @@
 package settingdust.lightmanscurrency.claimshop.claimtrader
 
+import dev.ftb.mods.ftbchunks.client.map.MapDimension
+import dev.ftb.mods.ftbchunks.client.map.MapManager
+import dev.ftb.mods.ftbchunks.client.map.RenderMapImageTask
+import dev.ftb.mods.ftbchunks.net.RequestMapDataPacket
+import dev.ftb.mods.ftblibrary.ui.BaseScreen
+import dev.ftb.mods.ftblibrary.ui.Theme
 import io.github.lightman314.lightmanscurrency.LCText
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference
@@ -27,6 +33,7 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory
 import io.github.lightman314.lightmanscurrency.common.notifications.types.TaxableNotification
+import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.Slot
@@ -35,6 +42,7 @@ import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import settingdust.lightmanscurrency.claimshop.ClaimShopForLightmansCurrency
 import java.util.function.Function
+import kotlin.jvm.optionals.getOrNull
 
 class ClaimNotification : TaxableNotification {
 
@@ -226,5 +234,56 @@ class ClaimTradeButtonRenderer(trade: ClaimTradeData) : TradeRenderManager<Claim
         val buyer = context.playerReference
         if (seller.id == buyer.id) alerts.add(AlertData.warn(LCText.TOOLTIP_OUT_OF_STOCK))
         if (!context.hasFunds(trade.cost)) alerts.add(AlertData.warn(LCText.TOOLTIP_CANNOT_AFFORD))
+    }
+}
+
+class TraderChunkScreen(
+    private val dimension: MapDimension,
+    private val blockEntity: ClaimTraderBlockEntity
+) : BaseScreen() {
+    companion object {
+        fun get(blockEntity: ClaimTraderBlockEntity): TraderChunkScreen? {
+            val screen =
+                MapDimension.getCurrent().map { TraderChunkScreen(it, blockEntity) }.getOrNull()
+
+            if (screen == null) {
+                ClaimShopForLightmansCurrency.LOGGER.warn(
+                    "MapDimension data missing?? not opening chunk screen")
+            }
+
+            return screen
+        }
+    }
+
+    init {
+        RenderMapImageTask.setAlwaysRenderChunksOnMap(true)
+        MapManager.getInstance().ifPresent { it.updateAllRegions(false) }
+    }
+
+    override fun onInit(): Boolean {
+        return setSizeProportional(0.32F, 0.32F)
+    }
+
+    override fun onClosed() {
+        RenderMapImageTask.setAlwaysRenderChunksOnMap(false)
+        MapManager.getInstance().ifPresent { it.updateAllRegions(false) }
+        super.onClosed()
+    }
+
+    override fun addWidgets() {
+        val chunkPos = ChunkPos(blockEntity.blockPos)
+        RequestMapDataPacket(chunkPos.x - 7, chunkPos.z - 7, chunkPos.x + 7, chunkPos.z + 7)
+            .sendToServer()
+    }
+
+    override fun drawBackground(
+        graphics: GuiGraphics?,
+        theme: Theme?,
+        x: Int,
+        y: Int,
+        w: Int,
+        h: Int
+    ) {
+        super.drawBackground(graphics, theme, x, y, w, h)
     }
 }

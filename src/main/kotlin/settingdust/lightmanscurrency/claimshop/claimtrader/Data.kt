@@ -217,7 +217,11 @@ open class ClaimTraderData : TraderData {
                 ?: ServerLifecycleHooks.getCurrentServer().createCommandSourceStack())
         val chunkDimPos = ChunkDimPos(level, ChunkPos(pos))
 
-        val sellerData = FTBChunksAPI.api().manager.getPersonalData(owner.playerForContext.id)
+        val sellerData =
+            FTBChunksAPI.api().manager.getPersonalData(owner.playerForContext.id)
+                ?: FTBChunksAPI.api()
+                    .manager
+                    .getPersonalData(ClaimShopForLightmansCurrency.FAKE_PROFILE.id)
 
         val buyerData = FTBChunksAPI.api().manager.getPersonalData(buyer.id)
 
