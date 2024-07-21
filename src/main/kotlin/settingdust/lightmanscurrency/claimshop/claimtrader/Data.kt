@@ -209,10 +209,6 @@ open class ClaimTraderData : TraderData {
             return TradeResult.FAIL_TRADE_RULE_DENIAL
         }
         val price = trade.getCost(context)
-        if (!context.getPayment(price)) {
-            ClaimShopForLightmansCurrency.LOGGER.debug("No enough money for the trade {}.", trade)
-            return TradeResult.FAIL_CANNOT_AFFORD
-        }
 
         val buyer = context.playerReference!!
 
@@ -222,9 +218,13 @@ open class ClaimTraderData : TraderData {
         val chunkDimPos = ChunkDimPos(level, ChunkPos(pos))
 
         val sellerData = FTBChunksAPI.api().manager.getPersonalData(owner.playerForContext.id)
-        sellerData.unclaim(commandSourceStack, chunkDimPos, false)
 
         val buyerData = FTBChunksAPI.api().manager.getPersonalData(buyer.id)
+
+        if (buyerData == sellerData) return TradeResult.FAIL_OUT_OF_STOCK
+
+        sellerData.unclaim(commandSourceStack, chunkDimPos, false)
+
         val result =
             buyerData.claim(
                 buyer.player?.createCommandSourceStack()
@@ -243,6 +243,11 @@ open class ClaimTraderData : TraderData {
 
                 else -> TradeResult.FAIL_INVALID_TRADE
             }
+        }
+
+        if (!context.getPayment(price)) {
+            ClaimShopForLightmansCurrency.LOGGER.debug("No enough money for the trade {}.", trade)
+            return TradeResult.FAIL_CANNOT_AFFORD
         }
 
         val taxesPaid =

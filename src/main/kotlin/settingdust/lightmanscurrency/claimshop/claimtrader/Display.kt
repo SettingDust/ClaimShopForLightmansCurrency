@@ -221,5 +221,10 @@ class ClaimTradeButtonRenderer(trade: ClaimTradeData) : TradeRenderManager<Claim
 
     override fun getOutputDisplays(context: TradeContext) = mutableListOf<DisplayEntry>()
 
-    override fun getAdditionalAlertData(context: TradeContext, alerts: MutableList<AlertData>) {}
+    override fun getAdditionalAlertData(context: TradeContext, alerts: MutableList<AlertData>) {
+        val seller = context.trader.owner.playerForContext
+        val buyer = context.playerReference
+        if (seller.id == buyer.id) alerts.add(AlertData.warn(LCText.TOOLTIP_OUT_OF_STOCK))
+        if (!context.hasFunds(trade.cost)) alerts.add(AlertData.warn(LCText.TOOLTIP_CANNOT_AFFORD))
+    }
 }
