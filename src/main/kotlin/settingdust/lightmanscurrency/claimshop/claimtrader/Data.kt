@@ -1,8 +1,12 @@
 package settingdust.lightmanscurrency.claimshop.claimtrader
 
 import com.google.gson.JsonObject
+import dev.ftb.mods.ftbchunks.api.ClaimResult.StandardProblem
+import dev.ftb.mods.ftbchunks.api.FTBChunksAPI
+import dev.ftb.mods.ftblibrary.math.ChunkDimPos
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData
+import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext
 import io.github.lightman314.lightmanscurrency.api.traders.TradeResult
@@ -22,10 +26,12 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.Level
+import net.minecraftforge.server.ServerLifecycleHooks
 import settingdust.lightmanscurrency.claimshop.ClaimShopForLightmansCurrency
 import java.util.function.Consumer
 
@@ -209,6 +215,37 @@ open class ClaimTraderData : TraderData {
             return TradeResult.FAIL_CANNOT_AFFORD
         }
 
+        val buyer = context.playerReference!!
+
+        val commandSourceStack =
+            (buyer.player?.createCommandSourceStack()
+                ?: ServerLifecycleHooks.getCurrentServer().createCommandSourceStack())
+        val chunkDimPos = ChunkDimPos(level, ChunkPos(pos))
+
+        val sellerData = FTBChunksAPI.api().manager.getPersonalData(owner.playerForContext.id)
+        sellerData.unclaim(commandSourceStack, chunkDimPos, false)
+
+        val buyerData = FTBChunksAPI.api().manager.getPersonalData(buyer.id)
+        val result =
+            buyerData.claim(
+                buyer.player?.createCommandSourceStack()
+                    ?: ServerLifecycleHooks.getCurrentServer().createCommandSourceStack(),
+                chunkDimPos,
+                false)
+
+        buyer.player.sendSystemMessage(result.message)
+
+        if (!result.isSuccess) {
+            sellerData.claim(commandSourceStack, chunkDimPos, false)
+            return when (result) {
+                StandardProblem.NOT_ENOUGH_POWER -> {
+                    TradeResult.FAIL_NO_OUTPUT_SPACE
+                }
+
+                else -> TradeResult.FAIL_INVALID_TRADE
+            }
+        }
+
         val taxesPaid =
             if (!isCreative) {
                 addStoredMoney(price, true)
@@ -224,6 +261,10 @@ open class ClaimTraderData : TraderData {
         }
 
         this.runPostTradeEvent(trade, context, price, taxesPaid)
+
+        context.trader.owner.SetOwner(PlayerOwner.of(buyer))
+        (buyer.player as ServerPlayer).gameMode.destroyBlock(pos)
+
         return TradeResult.SUCCESS
     }
 

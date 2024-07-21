@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData
@@ -41,6 +42,10 @@ class ClaimNotification : TaxableNotification {
         val TYPE =
             NotificationType(
                 ClaimShopForLightmansCurrency.location("claim_trade"), ::ClaimNotification)
+
+        init {
+            NotificationAPI.registerNotification(TYPE)
+        }
     }
 
     lateinit var pos: ChunkPos

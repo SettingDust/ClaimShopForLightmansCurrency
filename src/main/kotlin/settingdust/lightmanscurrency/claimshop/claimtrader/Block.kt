@@ -116,7 +116,7 @@ class ClaimTraderBlock(properties: Properties) : TraderBlockRotatable(properties
             .getChunk(ChunkDimPos(level, pos))
             ?.unclaim(level.server.createCommandSourceStack(), true)
 
-        val blockEntity = getBlockEntity(state, level, pos) as ClaimTraderBlockEntity
+        val blockEntity = ClaimTraderBlockEntity.CLAIM_TRADER.getBlockEntity(level, pos)!!
         val traderData = blockEntity.traderData
         if (traderData == null) {
             super.onRemove(state, level, pos, newState, flag)
@@ -129,9 +129,9 @@ class ClaimTraderBlock(properties: Properties) : TraderBlockRotatable(properties
         }
 
         val result =
-            TeamManagerImpl.INSTANCE.getTeamForPlayerID(playerForContext.id)
-                .map { FTBChunksAPI.api().manager.getOrCreateData(it) }
-                .get()
+            FTBChunksAPI.api()
+                .manager
+                .getPersonalData(playerForContext.id)
                 .claim(level.server.createCommandSourceStack(), ChunkDimPos(level, pos), false)
         playerForContext.player.sendSystemMessage(result.message)
         super.onRemove(state, level, pos, newState, flag)
