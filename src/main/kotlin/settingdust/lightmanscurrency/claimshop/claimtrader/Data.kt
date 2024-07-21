@@ -26,7 +26,6 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
-import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.ChunkPos
@@ -263,7 +262,6 @@ open class ClaimTraderData : TraderData {
         this.runPostTradeEvent(trade, context, price, taxesPaid)
 
         context.trader.owner.SetOwner(PlayerOwner.of(buyer))
-        (buyer.player as ServerPlayer).gameMode.destroyBlock(pos)
 
         return TradeResult.SUCCESS
     }
