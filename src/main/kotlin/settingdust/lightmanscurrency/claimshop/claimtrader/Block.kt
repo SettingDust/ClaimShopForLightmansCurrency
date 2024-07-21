@@ -4,6 +4,7 @@ import dev.ftb.mods.ftbchunks.api.FTBChunksAPI
 import dev.ftb.mods.ftblibrary.math.ChunkDimPos
 import dev.ftb.mods.ftbteams.api.FTBTeamsAPI
 import dev.ftb.mods.ftbteams.data.TeamManagerImpl
+import io.github.lightman314.lightmanscurrency.ModCreativeGroups
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity
@@ -22,6 +23,7 @@ import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.material.FluidState
 import net.minecraft.world.level.material.MapColor
 import net.minecraftforge.common.util.FakePlayerFactory
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent
 import net.minecraftforge.event.level.BlockEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
@@ -54,6 +56,13 @@ class ClaimTraderBlock(properties: Properties) : TraderBlockRotatable(properties
                 BlockItem(delegate(), Item.Properties())
             }
             return delegate
+        }
+
+        @SubscribeEvent
+        fun addToTab(event: BuildCreativeModeTabContentsEvent) {
+            if (event.tabKey === ModCreativeGroups.MACHINE_GROUP_ID) {
+                event.accept(CLAIM_TRADER)
+            }
         }
 
         @SubscribeEvent
