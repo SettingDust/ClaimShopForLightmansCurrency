@@ -278,6 +278,7 @@ class ClaimTradeButtonRenderer(trade: ClaimTradeData) :
         mouseButton: Int
     ) {
         if (mouseButton == 0) {
+            Minecraft.getInstance().player!!.closeContainer()
             LargeMapScreen.openMap()
         }
     }
