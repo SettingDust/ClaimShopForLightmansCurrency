@@ -13,7 +13,6 @@ import net.minecraftforge.registries.ForgeRegistries
 import org.apache.logging.log4j.LogManager
 import settingdust.lightmanscurrency.claimshop.claimtrader.ClaimNotification
 import settingdust.lightmanscurrency.claimshop.claimtrader.ClaimTraderBlock
-import settingdust.lightmanscurrency.claimshop.claimtrader.ClaimTraderBlock.Companion.CLAIM_TRADER
 import settingdust.lightmanscurrency.claimshop.claimtrader.ClaimTraderBlockEntity
 import thedarkcolour.kotlinforforge.forge.MOD_BUS
 import java.util.*
@@ -49,8 +48,8 @@ object ClaimShopForLightmansCurrency {
 
         @SubscribeEvent
         fun addToTab(event: BuildCreativeModeTabContentsEvent) {
-            if (event.tabKey === ModCreativeGroups.MACHINE_GROUP_ID) {
-                event.accept(CLAIM_TRADER)
+            if (event.tabKey.location() == ModCreativeGroups.TRADER_GROUP_ID) {
+                event.accept(ClaimTraderBlock.CLAIM_TRADER)
             }
         }
     }
