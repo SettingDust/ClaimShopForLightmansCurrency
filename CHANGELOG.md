@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2024-07-22
+### :wrench: Chores
+- [`f50d271`](https://github.com/SettingDust/ClaimShopForLightmansCurrency/commit/f50d271cfcb8d365cdb9b357b8324acce8aed530) - add icon *(commit by [@SettingDust](https://github.com/SettingDust))*
+
+
 ## [0.1.0] - 2024-07-22
 ### :sparkles: New Features
 - [`dc1ef8d`](https://github.com/SettingDust/ClaimShopForLightmansCurrency/commit/dc1ef8dd34cfbc755daddbaf8ea77a24f8747741) - add main class *(commit by [@SettingDust](https://github.com/SettingDust))*
@@ -45,3 +50,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [`c72c47d`](https://github.com/SettingDust/ClaimShopForLightmansCurrency/commit/c72c47d83d84378423228111ae4c01106eb8c119) - correct the claim trade message for non-owners *(commit by [@SettingDust](https://github.com/SettingDust))*
 
 [0.1.0]: https://github.com/SettingDust/ClaimShopForLightmansCurrency/compare/0.0.0...0.1.0
+[0.1.1]: https://github.com/SettingDust/ClaimShopForLightmansCurrency/compare/0.1.0...0.1.1
