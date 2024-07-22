@@ -100,10 +100,9 @@ class ClaimTraderBlock(properties: Properties) : TraderBlockRotatable(properties
                 FTBChunksAPI.api()
                     .claimAsPlayer(fakePlayer, level.dimension(), ChunkPos(pos), false)
 
-            player.sendSystemMessage(result.message)
-
             if (!result.isSuccess) {
                 blockEntity.cancelled = true
+                player.sendSystemMessage(result.message)
             }
         }
 
@@ -171,7 +170,7 @@ class ClaimTraderBlockEntity(pos: BlockPos, state: BlockState) :
 
     override fun saveAdditional(compound: CompoundTag) {
         super.saveAdditional(compound)
-        if (chunkOwner != null) compound.putUUID("ChunkOwner", chunkOwner)
+        if (chunkOwner != null) compound.putUUID("ChunkOwner", chunkOwner!!)
         compound.putBoolean("Cancelled", cancelled)
     }
 
