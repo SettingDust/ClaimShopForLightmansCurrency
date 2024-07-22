@@ -227,7 +227,7 @@ open class ClaimTraderData : TraderData {
 
         val buyerData = FTBChunksAPI.api().manager.getPersonalData(buyer.id)
 
-        if (buyerData == sellerData) return TradeResult.FAIL_OUT_OF_STOCK
+        //        if (buyerData == sellerData) return TradeResult.FAIL_OUT_OF_STOCK
 
         sellerData.unclaim(commandSourceStack, chunkDimPos, false)
 
