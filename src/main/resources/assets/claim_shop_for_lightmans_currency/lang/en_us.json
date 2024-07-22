@@ -1,6 +1,6 @@
 {
     "notification.claim_shop_for_lightmans_currency.claim_trade": "%1$s claimed chunk at %2$s",
-    "notification.claim_shop_for_lightmans_currency.claim_trade.not_owner": "You aren't the owner of the chunk",
+    "notification.claim_shop_for_lightmans_currency.claim_trade.not_owner": "You cannot place the trader outside of your claimed chunks",
     "gui.claim_shop_for_lightmans_currency.result": "Chunk at %1$s",
     "block.claim_shop_for_lightmans_currency.claim_trader": "Claim Trader"
 }
