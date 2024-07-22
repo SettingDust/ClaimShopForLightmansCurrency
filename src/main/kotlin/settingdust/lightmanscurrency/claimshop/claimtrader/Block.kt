@@ -82,9 +82,14 @@ class ClaimTraderBlock(properties: Properties) : TraderBlockRotatable(properties
             }
 
             val claimedChunk = FTBChunksAPI.api().manager.getChunk(ChunkDimPos(level, pos))
-            if (claimedChunk != null && claimedChunk.teamData.isTeamMember(player.uuid)) {
-                claimedChunk.unclaim(player.createCommandSourceStack(), true)
+            if ((claimedChunk == null || claimedChunk.teamData.team.owner != player.uuid)) {
+                player.sendSystemMessage(
+                    ClaimShopForLightmansCurrency.Texts.NOTIFICATION_TRADE_CLAIM_NOT_OWNER.get())
+                event.isCanceled = true
+                return
             }
+
+            claimedChunk.unclaim(player.createCommandSourceStack(), true)
 
             val result =
                 FTBChunksAPI.api()
