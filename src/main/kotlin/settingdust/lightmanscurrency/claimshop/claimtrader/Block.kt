@@ -11,9 +11,11 @@ import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockRot
 import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.SoundType
@@ -22,16 +24,13 @@ import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.material.FluidState
 import net.minecraft.world.level.material.MapColor
 import net.minecraftforge.common.util.FakePlayerFactory
-import net.minecraftforge.event.level.BlockEvent
-import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import settingdust.lightmanscurrency.claimshop.ClaimShopForLightmansCurrency
 import thedarkcolour.kotlinforforge.forge.ObjectHolderDelegate
 import thedarkcolour.kotlinforforge.forge.registerObject
+import java.util.*
 import kotlin.jvm.optionals.getOrNull
 
 class ClaimTraderBlock(properties: Properties) : TraderBlockRotatable(properties) {
-    @EventBusSubscriber(modid = ClaimShopForLightmansCurrency.ID)
     companion object {
         val CLAIM_TRADER by
             register(
@@ -55,40 +54,45 @@ class ClaimTraderBlock(properties: Properties) : TraderBlockRotatable(properties
             }
             return delegate
         }
+    }
 
-        @SubscribeEvent
-        fun onPlace(event: BlockEvent.EntityPlaceEvent) {
-            val player = event.entity
-            if (player !is ServerPlayer) return
-            if (event.placedBlock.block != CLAIM_TRADER) return
+    private var chunkOwner: UUID? = null
+    private var cancelledPlace = false
 
-            val level = player.level() as ServerLevel
-            val pos = event.pos
-            val fakePlayer by lazy {
-                FakePlayerFactory.get(level, ClaimShopForLightmansCurrency.FAKE_PROFILE)
-            }
+    override fun setPlacedBy(
+        level: Level,
+        pos: BlockPos,
+        state: BlockState,
+        player: LivingEntity?,
+        stack: ItemStack
+    ) {
+        super.setPlacedBy(level, pos, state, player, stack)
 
-            if (!level.server.playerList.isOp(ClaimShopForLightmansCurrency.FAKE_PROFILE))
-                level.server.playerList.op(ClaimShopForLightmansCurrency.FAKE_PROFILE)
+        if (player !is ServerPlayer) return
 
-            if (FTBTeamsAPI.api()
-                .manager
-                .getTeamForPlayerID(ClaimShopForLightmansCurrency.FAKE_PROFILE.id)
-                .getOrNull() == null) {
-                TeamManagerImpl.INSTANCE.playerLoggedIn(
-                    fakePlayer,
-                    ClaimShopForLightmansCurrency.FAKE_PROFILE.id,
-                    ClaimShopForLightmansCurrency.FAKE_PROFILE.name)
-            }
+        val fakePlayer by lazy {
+            FakePlayerFactory.get(level as ServerLevel, ClaimShopForLightmansCurrency.FAKE_PROFILE)
+        }
 
-            val claimedChunk = FTBChunksAPI.api().manager.getChunk(ChunkDimPos(level, pos))
-            if ((claimedChunk == null || claimedChunk.teamData.team.owner != player.uuid)) {
-                player.sendSystemMessage(
-                    ClaimShopForLightmansCurrency.Texts.NOTIFICATION_TRADE_CLAIM_NOT_OWNER.get())
-                event.isCanceled = true
-                return
-            }
+        if (!level.server!!.playerList.isOp(ClaimShopForLightmansCurrency.FAKE_PROFILE))
+            level.server!!.playerList.op(ClaimShopForLightmansCurrency.FAKE_PROFILE)
 
+        if (FTBTeamsAPI.api()
+            .manager
+            .getTeamForPlayerID(ClaimShopForLightmansCurrency.FAKE_PROFILE.id)
+            .getOrNull() == null) {
+            TeamManagerImpl.INSTANCE.playerLoggedIn(
+                fakePlayer,
+                ClaimShopForLightmansCurrency.FAKE_PROFILE.id,
+                ClaimShopForLightmansCurrency.FAKE_PROFILE.name)
+        }
+
+        val claimedChunk = FTBChunksAPI.api().manager.getChunk(ChunkDimPos(level, pos))
+        if ((claimedChunk == null || claimedChunk.teamData.team.owner != player.uuid)) {
+            player.sendSystemMessage(
+                ClaimShopForLightmansCurrency.Texts.NOTIFICATION_TRADE_CLAIM_NOT_OWNER.get())
+            cancelledPlace = true
+        } else {
             claimedChunk.unclaim(player.createCommandSourceStack(), true)
 
             val result =
@@ -98,9 +102,16 @@ class ClaimTraderBlock(properties: Properties) : TraderBlockRotatable(properties
             player.sendSystemMessage(result.message)
 
             if (!result.isSuccess) {
-                event.isCanceled = true
-                return
+                cancelledPlace = true
             }
+        }
+
+        chunkOwner = claimedChunk?.teamData?.team?.id
+
+        if (cancelledPlace) {
+            ClaimTraderBlockEntity.CLAIM_TRADER.getBlockEntity(level, pos)!!.flagAsLegitBreak()
+            player.addItem(stack)
+            level.destroyBlock(pos, false)
         }
     }
 
@@ -134,12 +145,10 @@ class ClaimTraderBlock(properties: Properties) : TraderBlockRotatable(properties
             return
         }
 
-        val result =
-            FTBChunksAPI.api()
-                .manager
-                .getPersonalData(playerForContext.id)
-                ?.claim(level.server.createCommandSourceStack(), ChunkDimPos(level, pos), false)
-        result?.message?.let { playerForContext.player.sendSystemMessage(it) }
+        FTBChunksAPI.api()
+            .manager
+            .getPersonalData(chunkOwner)
+            ?.claim(level.server.createCommandSourceStack(), ChunkDimPos(level, pos), false)
 
         super.onRemove(state, level, pos, newState, flag)
     }
