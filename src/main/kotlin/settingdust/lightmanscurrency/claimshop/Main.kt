@@ -61,5 +61,6 @@ object ClaimShopForLightmansCurrency {
     object Texts {
         val NOTIFICATION_TRADE_CLAIM: TextEntry = TextEntry.notification(ClaimNotification.TYPE)
         val NOTIFICATION_TRADE_CLAIM_NOT_OWNER: TextEntry = TextEntry.notification(ClaimNotification.TYPE, "not_owner")
+        val MESSAGE_SUCCESSFUL_TRANSACTION = TextEntry.message(ID, "successful_transaction")
     }
 }

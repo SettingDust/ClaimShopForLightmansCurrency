@@ -3,5 +3,5 @@
     "notification.claim_shop_for_lightmans_currency.claim_trade.not_owner": "You cannot place the trader outside of your claimed chunks",
     "gui.claim_shop_for_lightmans_currency.result": "Chunk at %1$s",
     "block.claim_shop_for_lightmans_currency.claim_trader": "Claim Trader",
-    "ftbchunks.claim_result.ok": "Successful claiming"
+    "message.claim_shop_for_lightmans_currency.successful_transaction": "Transaction Successful, %1$s"
 }

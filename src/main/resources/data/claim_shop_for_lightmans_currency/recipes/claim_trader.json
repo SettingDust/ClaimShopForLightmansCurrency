@@ -1,0 +1,23 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "category": "misc",
+    "pattern": [
+        "IgI",
+        "grg",
+        "IgI"
+    ],
+    "key": {
+        "I": {
+            "item": "minecraft:iron_block"
+        },
+        "g": {
+            "item": "minecraft:gold_ingot"
+        },
+        "r": {
+            "item": "lightmanscurrency:trading_core"
+        }
+    },
+    "result": {
+        "item": "claim_shop_for_lightmans_currency:claim_trader"
+    }
+}

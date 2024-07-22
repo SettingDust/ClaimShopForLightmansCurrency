@@ -239,6 +239,7 @@ open class ClaimTraderData : TraderData {
         if (!result.isSuccess) {
             buyerData.unclaim(commandSourceStack, chunkDimPos, false)
             fakeData.claim(commandSourceStack, chunkDimPos, false)
+            buyer.player.sendSystemMessage(result.message)
             return when (result) {
                 StandardProblem.NOT_ENOUGH_POWER -> {
                     TradeResult.FAIL_NO_OUTPUT_SPACE
@@ -254,7 +255,7 @@ open class ClaimTraderData : TraderData {
             return TradeResult.FAIL_CANNOT_AFFORD
         }
 
-        buyer.player.sendSystemMessage(result.message)
+        buyer.player.sendSystemMessage(ClaimShopForLightmansCurrency.Texts.MESSAGE_SUCCESSFUL_TRANSACTION.get(buyer))
 
         val taxesPaid =
             if (!isCreative) {
