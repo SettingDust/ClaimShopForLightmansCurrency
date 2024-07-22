@@ -2,6 +2,7 @@ package settingdust.lightmanscurrency.claimshop
 
 import com.mojang.authlib.GameProfile
 import io.github.lightman314.lightmanscurrency.ModCreativeGroups
+import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry
 import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent
@@ -14,6 +15,7 @@ import org.apache.logging.log4j.LogManager
 import settingdust.lightmanscurrency.claimshop.claimtrader.ClaimNotification
 import settingdust.lightmanscurrency.claimshop.claimtrader.ClaimTraderBlock
 import settingdust.lightmanscurrency.claimshop.claimtrader.ClaimTraderBlockEntity
+import settingdust.lightmanscurrency.claimshop.claimtrader.ClaimTraderData.Companion.TYPE
 import thedarkcolour.kotlinforforge.forge.MOD_BUS
 import java.util.*
 
@@ -44,6 +46,8 @@ object ClaimShopForLightmansCurrency {
             BLOCKS.register(MOD_BUS)
             BLOCK_ENTITIES.register(MOD_BUS)
             ITEMS.register(MOD_BUS)
+
+            TraderAPI.registerTrader(TYPE)
         }
 
         @SubscribeEvent
