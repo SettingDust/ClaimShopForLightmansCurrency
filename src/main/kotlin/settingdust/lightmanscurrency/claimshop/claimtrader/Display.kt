@@ -1,11 +1,19 @@
 package settingdust.lightmanscurrency.claimshop.claimtrader
 
+import com.mojang.blaze3d.systems.RenderSystem
+import dev.ftb.mods.ftbchunks.client.FTBChunksClient
+import dev.ftb.mods.ftbchunks.client.gui.LargeMapScreen
 import dev.ftb.mods.ftbchunks.client.map.MapDimension
 import dev.ftb.mods.ftbchunks.client.map.MapManager
 import dev.ftb.mods.ftbchunks.client.map.RenderMapImageTask
 import dev.ftb.mods.ftbchunks.net.RequestMapDataPacket
+import dev.ftb.mods.ftblibrary.icon.Color4I
+import dev.ftb.mods.ftblibrary.icon.FaceIcon
+import dev.ftb.mods.ftblibrary.math.MathUtils
 import dev.ftb.mods.ftblibrary.ui.BaseScreen
+import dev.ftb.mods.ftblibrary.ui.GuiHelper
 import dev.ftb.mods.ftblibrary.ui.Theme
+import dev.ftb.mods.ftblibrary.ui.ThemeManager
 import io.github.lightman314.lightmanscurrency.LCText
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference
@@ -31,16 +39,20 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.Tr
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition
+import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory
 import io.github.lightman314.lightmanscurrency.common.notifications.types.TaxableNotification
+import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.Slot
 import net.minecraft.world.level.ChunkPos
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import settingdust.lightmanscurrency.claimshop.ClaimShopForLightmansCurrency
+import settingdust.lightmanscurrency.claimshop.mixin.EasyGuiGraphicsAccessor
 import java.util.function.Function
 import kotlin.jvm.optionals.getOrNull
 
@@ -212,8 +224,9 @@ class ClaimTradeEditTab(menu: ITraderStorageMenu) : TraderStorageTab(menu) {
 }
 
 @OnlyIn(Dist.CLIENT)
-class ClaimTradeButtonRenderer(trade: ClaimTradeData) : TradeRenderManager<ClaimTradeData>(trade) {
-    override fun tradeButtonWidth(context: TradeContext) = 94
+class ClaimTradeButtonRenderer(trade: ClaimTradeData) :
+    TradeRenderManager<ClaimTradeData>(trade), TradeButtonArea.InteractionConsumer {
+    override fun tradeButtonWidth(context: TradeContext) = 132
 
     override fun arrowPosition(context: TradeContext) = ScreenPosition.ofOptional(36, 1)!!
 
@@ -225,26 +238,90 @@ class ClaimTradeButtonRenderer(trade: ClaimTradeData) : TradeRenderManager<Claim
                 trade.cost,
                 if (context.isStorageMode) LCText.TOOLTIP_TRADE_EDIT_PRICE.getAsList() else null))
 
-    override fun outputDisplayArea(context: TradeContext) = DisplayData(58, 1, 34, 16)
+    override fun outputDisplayArea(context: TradeContext) = DisplayData(58, 1, 72, 16)
 
-    override fun getOutputDisplays(context: TradeContext) = mutableListOf<DisplayEntry>()
+    override fun getOutputDisplays(context: TradeContext) =
+        mutableListOf<DisplayEntry>(
+            DisplayEntry.of(
+                Component.literal(trade.pos.toString()),
+                TextRenderUtil.TextFormatting.create(),
+                listOf(
+                    Component.translatable(
+                        "gui.claim_shop_for_lightmans_currency.result", trade.pos))))
+
+    //        mutableListOf<DisplayEntry>(
+    //            TraderChunkDisplayEntry(
+    //                ClaimTraderBlockEntity.CLAIM_TRADER.getBlockEntity(
+    //                    Minecraft.getInstance().level!!, context.trader.pos)!!,
+    //                listOf(
+    //                    Component.translatable(
+    //                        "gui.claim_shop_for_lightmans_currency.result", trade.pos))))
 
     override fun getAdditionalAlertData(context: TradeContext, alerts: MutableList<AlertData>) {
         val seller = context.trader.owner.playerForContext
         val buyer = context.playerReference
-//        if (seller.id == buyer.id) alerts.add(AlertData.warn(LCText.TOOLTIP_OUT_OF_STOCK))
+        //        if (seller.id == buyer.id) alerts.add(AlertData.warn(LCText.TOOLTIP_OUT_OF_STOCK))
         if (!context.hasFunds(trade.cost)) alerts.add(AlertData.warn(LCText.TOOLTIP_CANNOT_AFFORD))
+    }
+
+    override fun onTradeButtonInputInteraction(
+        trader: TraderData,
+        trade: TradeData,
+        index: Int,
+        mouseButton: Int
+    ) {}
+
+    override fun onTradeButtonOutputInteraction(
+        trader: TraderData,
+        trade: TradeData,
+        index: Int,
+        mouseButton: Int
+    ) {
+        if (mouseButton == 0) {
+            LargeMapScreen.openMap()
+        }
+    }
+
+    override fun onTradeButtonInteraction(
+        trader: TraderData,
+        trade: TradeData,
+        localMouseX: Int,
+        localMouseY: Int,
+        mouseButton: Int
+    ) {}
+}
+
+class TraderChunkDisplayEntry(
+    blockEntity: ClaimTraderBlockEntity,
+    tooltip: List<Component> = listOf()
+) : DisplayEntry(tooltip) {
+    private val screen = TraderChunkScreen.get(blockEntity)!!
+
+    override fun render(graphics: EasyGuiGraphics, x: Int, y: Int, data: DisplayData) {
+        screen.draw(
+            graphics.gui,
+            ThemeManager.INSTANCE.activeTheme,
+            (graphics as EasyGuiGraphicsAccessor).offset.x + x + 5,
+            (graphics as EasyGuiGraphicsAccessor).offset.y + y + 19,
+            84,
+            84)
+    }
+
+    override fun isMouseOver(x: Int, y: Int, data: DisplayData, mouseX: Int, mouseY: Int): Boolean {
+        val left: Int = x + data.xOffset()
+        val top: Int = y + data.yOffset()
+        return mouseX >= left &&
+            mouseX < left + data.width() &&
+            mouseY >= top &&
+            mouseY < top + data.height()
     }
 }
 
-class TraderChunkScreen(
-    private val dimension: MapDimension,
-    private val blockEntity: ClaimTraderBlockEntity
-) : BaseScreen() {
+class TraderChunkScreen(private val blockEntity: ClaimTraderBlockEntity) : BaseScreen() {
     companion object {
         fun get(blockEntity: ClaimTraderBlockEntity): TraderChunkScreen? {
             val screen =
-                MapDimension.getCurrent().map { TraderChunkScreen(it, blockEntity) }.getOrNull()
+                MapDimension.getCurrent().map { TraderChunkScreen(blockEntity) }.getOrNull()
 
             if (screen == null) {
                 ClaimShopForLightmansCurrency.LOGGER.warn(
@@ -272,18 +349,25 @@ class TraderChunkScreen(
 
     override fun addWidgets() {
         val chunkPos = ChunkPos(blockEntity.blockPos)
-        RequestMapDataPacket(chunkPos.x - 7, chunkPos.z - 7, chunkPos.x + 7, chunkPos.z + 7)
+        RequestMapDataPacket(chunkPos.x - 2, chunkPos.z - 2, chunkPos.x + 2, chunkPos.z + 2)
             .sendToServer()
     }
 
     override fun drawBackground(
-        graphics: GuiGraphics?,
-        theme: Theme?,
+        graphics: GuiGraphics,
+        theme: Theme,
         x: Int,
         y: Int,
         w: Int,
         h: Int
     ) {
-        super.drawBackground(graphics, theme, x, y, w, h)
+        val player = Minecraft.getInstance().player!!
+        RenderSystem.setShaderTexture(0, FTBChunksClient.INSTANCE.minimapTextureId)
+        GuiHelper.drawTexturedRect(graphics, x, y, w, h, Color4I.WHITE, 0.0f, 0.0f, 1.0f, 1.0f)
+
+        val hx = (x + w / 2 - 8).toDouble() + MathUtils.mod(player.x, 16.0)
+        val hy = (y + h / 2 - 8).toDouble() + MathUtils.mod(player.z, 16.0)
+        FaceIcon.getFace(player.gameProfile)
+            .draw(graphics, (hx - 2).toInt(), (hy - 2).toInt(), 4, 4)
     }
 }

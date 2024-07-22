@@ -1,4 +1,5 @@
 import groovy.lang.Closure
+import org.spongepowered.asm.gradle.plugins.struct.DynamicProperties
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -90,6 +91,17 @@ minecraft {
     }
 }
 
+mixin {
+    add("main", "$id.refmap.json")
+
+    config("claim_shop_for_lightmans_currency.mixins.json")
+
+    dumpTargetOnFailure = true
+    val debug = debug as DynamicProperties
+    debug.propertyMissing("verbose", true)
+    debug.propertyMissing("export", true)
+}
+
 sourceSets.main.configure { resources.srcDirs("src/generated/resources/") }
 
 repositories {
@@ -99,6 +111,7 @@ repositories {
 
 dependencies {
     minecraft(catalog.minecraft.forge)
+    annotationProcessor(variantOf(catalog.mixin) { classifier("processor") })
 
     implementation(catalog.kotlin.forge)
 
