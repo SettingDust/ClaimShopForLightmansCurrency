@@ -57,7 +57,7 @@ jobs:
           game-version-filter: releases
 
           dependencies: |
-            fabric-language-kotlin
+            kotlin-for-forge
             lightmans-currency
             ftb-chunks-forge#(ignore:modtinth)
 
