@@ -22,7 +22,9 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.Trad
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil
+import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
@@ -270,7 +272,22 @@ open class ClaimTraderData : TraderData {
 
         this.runPostTradeEvent(trade, context, price, taxesPaid)
 
-        context.trader.owner.SetOwner(PlayerOwner.of(buyer))
+        owner.SetOwner(PlayerOwner.of(buyer))
+
+        for (player in users) {
+            val containerMenu = player.containerMenu
+            if (containerMenu is TraderMenu && containerMenu.singleTrader == this) {
+                player.closeContainer()
+            }
+        }
+
+        ServerLifecycleHooks.getCurrentServer().submitAsync {
+            val level = ServerLifecycleHooks.getCurrentServer().getLevel(level)!!
+            ClaimTraderBlockEntity.CLAIM_TRADER.getBlockEntity(level, pos)!!.flagAsLegitBreak()
+            InventoryUtil.dumpContents(
+                level, pos, getContents(level, pos, level.getBlockState(pos), true))
+            level.destroyBlock(pos, true)
+        }
 
         return TradeResult.SUCCESS
     }

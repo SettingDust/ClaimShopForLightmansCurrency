@@ -122,6 +122,7 @@ class ClaimTraderBlock(properties: Properties) : TraderBlockRotatable(properties
             super.onRemove(state, level, pos, newState, flag)
             return
         }
+
         val playerForContext = traderData.owner.playerForContext
         if (playerForContext == PlayerReference.NULL) {
             super.onRemove(state, level, pos, newState, flag)
@@ -134,6 +135,7 @@ class ClaimTraderBlock(properties: Properties) : TraderBlockRotatable(properties
                 .getPersonalData(playerForContext.id)
                 ?.claim(level.server.createCommandSourceStack(), ChunkDimPos(level, pos), false)
         result?.message?.let { playerForContext.player.sendSystemMessage(it) }
+
         super.onRemove(state, level, pos, newState, flag)
     }
 
