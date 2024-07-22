@@ -7,7 +7,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-@Mixin(TradeButton.class)
+@Mixin(value = TradeButton.class, remap = false)
 public abstract class TradeButtonMixin extends EasyButton {
 
     @Shadow
