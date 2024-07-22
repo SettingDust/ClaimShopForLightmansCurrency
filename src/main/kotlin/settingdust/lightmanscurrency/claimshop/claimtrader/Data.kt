@@ -238,23 +238,28 @@ open class ClaimTraderData : TraderData {
                 chunkDimPos,
                 false)
 
-        buyer.player.sendSystemMessage(result.message)
+        val fakeData =
+            FTBChunksAPI.api().manager.getPersonalData(ClaimShopForLightmansCurrency.FAKE_PROFILE.id)
 
         if (!result.isSuccess) {
-            sellerData.claim(commandSourceStack, chunkDimPos, false)
+            buyerData.unclaim(commandSourceStack, chunkDimPos, false)
+            fakeData.claim(commandSourceStack, chunkDimPos, false)
             return when (result) {
                 StandardProblem.NOT_ENOUGH_POWER -> {
                     TradeResult.FAIL_NO_OUTPUT_SPACE
                 }
-
                 else -> TradeResult.FAIL_INVALID_TRADE
             }
         }
 
         if (!context.getPayment(price)) {
             ClaimShopForLightmansCurrency.LOGGER.debug("No enough money for the trade {}.", trade)
+            buyerData.unclaim(commandSourceStack, chunkDimPos, false)
+            fakeData.claim(commandSourceStack, chunkDimPos, false)
             return TradeResult.FAIL_CANNOT_AFFORD
         }
+
+        buyer.player.sendSystemMessage(result.message)
 
         val taxesPaid =
             if (!isCreative) {
