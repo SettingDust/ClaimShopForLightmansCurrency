@@ -11,6 +11,7 @@ displayName = "${name}"
 authors = "${author}"
 description = "${description}"
 displayURL = "${source}"
+logoFile = "icon.png"
 [[dependencies.${id}]]
 modId = "forge"
 mandatory = true
