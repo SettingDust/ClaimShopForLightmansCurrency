@@ -4,11 +4,11 @@ import dev.ftb.mods.ftbchunks.api.FTBChunksAPI
 import dev.ftb.mods.ftblibrary.math.ChunkDimPos
 import dev.ftb.mods.ftbteams.api.FTBTeamsAPI
 import dev.ftb.mods.ftbteams.data.TeamManagerImpl
-import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockRotatable
 import net.minecraft.core.BlockPos
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.LivingEntity
@@ -56,9 +56,6 @@ class ClaimTraderBlock(properties: Properties) : TraderBlockRotatable(properties
         }
     }
 
-    private var chunkOwner: UUID? = null
-    private var cancelledPlace = false
-
     override fun setPlacedBy(
         level: Level,
         pos: BlockPos,
@@ -87,11 +84,15 @@ class ClaimTraderBlock(properties: Properties) : TraderBlockRotatable(properties
                 ClaimShopForLightmansCurrency.FAKE_PROFILE.name)
         }
 
+        val blockEntity = ClaimTraderBlockEntity.CLAIM_TRADER.getBlockEntity(level, pos)!!
+
         val claimedChunk = FTBChunksAPI.api().manager.getChunk(ChunkDimPos(level, pos))
-        if ((claimedChunk == null || claimedChunk.teamData.team.owner != player.uuid)) {
+        if ((claimedChunk == null ||
+            (claimedChunk.teamData.team.id != player.uuid &&
+                claimedChunk.teamData.team.owner != player.uuid))) {
             player.sendSystemMessage(
                 ClaimShopForLightmansCurrency.Texts.NOTIFICATION_TRADE_CLAIM_NOT_OWNER.get())
-            cancelledPlace = true
+            blockEntity.cancelled = true
         } else {
             claimedChunk.unclaim(player.createCommandSourceStack(), true)
 
@@ -102,55 +103,17 @@ class ClaimTraderBlock(properties: Properties) : TraderBlockRotatable(properties
             player.sendSystemMessage(result.message)
 
             if (!result.isSuccess) {
-                cancelledPlace = true
+                blockEntity.cancelled = true
             }
         }
 
-        chunkOwner = claimedChunk?.teamData?.team?.id
+        blockEntity.chunkOwner = claimedChunk?.teamData?.team?.id
 
-        if (cancelledPlace) {
-            ClaimTraderBlockEntity.CLAIM_TRADER.getBlockEntity(level, pos)!!.flagAsLegitBreak()
+        if (blockEntity.cancelled) {
+            blockEntity.flagAsLegitBreak()
             player.addItem(stack)
             level.destroyBlock(pos, false)
         }
-    }
-
-    override fun onRemove(
-        state: BlockState,
-        level: Level,
-        pos: BlockPos,
-        newState: BlockState,
-        flag: Boolean
-    ) {
-        if (level !is ServerLevel) {
-            super.onRemove(state, level, pos, newState, flag)
-            return
-        }
-
-        FTBChunksAPI.api()
-            .manager
-            .getChunk(ChunkDimPos(level, pos))
-            ?.unclaim(level.server.createCommandSourceStack(), true)
-
-        val blockEntity = ClaimTraderBlockEntity.CLAIM_TRADER.getBlockEntity(level, pos)!!
-        val traderData = blockEntity.traderData
-        if (traderData == null) {
-            super.onRemove(state, level, pos, newState, flag)
-            return
-        }
-
-        val playerForContext = traderData.owner.playerForContext
-        if (playerForContext == PlayerReference.NULL) {
-            super.onRemove(state, level, pos, newState, flag)
-            return
-        }
-
-        FTBChunksAPI.api()
-            .manager
-            .getPersonalData(chunkOwner)
-            ?.claim(level.server.createCommandSourceStack(), ChunkDimPos(level, pos), false)
-
-        super.onRemove(state, level, pos, newState, flag)
     }
 
     override fun onDestroyedByPlayer(
@@ -193,7 +156,45 @@ class ClaimTraderBlockEntity(pos: BlockPos, state: BlockState) :
         }
     }
 
+    var cancelled = false
+    var chunkOwner: UUID? = null
+
     override fun buildNewTrader() = ClaimTraderData(level!!, worldPosition)
 
     override fun castOrNullify(data: TraderData) = data as? ClaimTraderData
+
+    override fun load(compound: CompoundTag) {
+        super.load(compound)
+        if ("ChunkOwner" in compound) chunkOwner = compound.getUUID("ChunkOwner")
+        if ("Cancelled" in compound) cancelled = compound.getBoolean("Cancelled")
+    }
+
+    override fun saveAdditional(compound: CompoundTag) {
+        super.saveAdditional(compound)
+        if (chunkOwner != null) compound.putUUID("ChunkOwner", chunkOwner)
+        compound.putBoolean("Cancelled", cancelled)
+    }
+
+    override fun onBreak() {
+        if (level !is ServerLevel) {
+            super.onBreak()
+            return
+        }
+
+        val commandSourceStack = (level as ServerLevel).server.createCommandSourceStack()
+        val chunkDimPos = ChunkDimPos(level, worldPosition)
+        FTBChunksAPI.api().manager.getChunk(chunkDimPos)?.unclaim(commandSourceStack, true)
+
+        if (traderData == null) {
+            super.onBreak()
+            return
+        }
+
+        FTBChunksAPI.api()
+            .manager
+            .getPersonalData(chunkOwner)
+            ?.claim(commandSourceStack, chunkDimPos, false)
+
+        super.onBreak()
+    }
 }
