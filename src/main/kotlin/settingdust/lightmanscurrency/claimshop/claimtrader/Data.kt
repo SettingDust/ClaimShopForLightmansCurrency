@@ -255,7 +255,7 @@ open class ClaimTraderData : TraderData {
             return TradeResult.FAIL_CANNOT_AFFORD
         }
 
-        buyer.player.sendSystemMessage(ClaimShopForLightmansCurrency.Texts.MESSAGE_SUCCESSFUL_TRANSACTION.get(buyer))
+        buyer.player.sendSystemMessage(ClaimShopForLightmansCurrency.Texts.MESSAGE_SUCCESSFUL_TRANSACTION.get(buyer.player.displayName))
 
         val taxesPaid =
             if (!isCreative) {
