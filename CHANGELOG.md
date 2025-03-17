@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2025-03-17
+### :sparkles: New Features
+- [`fb45a6b`](https://github.com/SettingDust/ClaimShopForLightmansCurrency/commit/fb45a6ba6142c6fe4faab571ca655e154e466d95) - support the latest lightmans' currency *(commit by [@SettingDust](https://github.com/SettingDust))*
+
+### :wrench: Chores
+- [`3c0ed4f`](https://github.com/SettingDust/ClaimShopForLightmansCurrency/commit/3c0ed4fceb5c7e90cfec61e7ac6e0fd5989e87e0) - **deps**: bump org.gradle.toolchains.foojay-resolver-convention *(commit by [@dependabot[bot]](https://github.com/apps/dependabot))*
+
+
 ## [0.1.1] - 2024-07-22
 ### :wrench: Chores
 - [`f50d271`](https://github.com/SettingDust/ClaimShopForLightmansCurrency/commit/f50d271cfcb8d365cdb9b357b8324acce8aed530) - add icon *(commit by [@SettingDust](https://github.com/SettingDust))*
@@ -51,3 +59,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [0.1.0]: https://github.com/SettingDust/ClaimShopForLightmansCurrency/compare/0.0.0...0.1.0
 [0.1.1]: https://github.com/SettingDust/ClaimShopForLightmansCurrency/compare/0.1.0...0.1.1
+[0.2.0]: https://github.com/SettingDust/ClaimShopForLightmansCurrency/compare/0.1.1...0.2.0
