@@ -55,7 +55,7 @@ kotlin { jvmToolchain(17) }
 
 minecraft {
     mappings(
-        "parchment", "${catalog.versions.parchmentmc.get()}-${catalog.versions.minecraft.get()}")
+        "parchment", "2023.09.03-${catalog.versions.minecraft.get()}")
 
     runs.all {
         mods {

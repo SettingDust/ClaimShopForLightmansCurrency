@@ -29,19 +29,20 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderS
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionHandler
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager
-import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory
 import io.github.lightman314.lightmanscurrency.common.notifications.types.TaxableNotification
+import io.github.lightman314.lightmanscurrency.common.util.IconData
+import io.github.lightman314.lightmanscurrency.common.util.IconUtil
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.nbt.CompoundTag
@@ -61,7 +62,8 @@ class ClaimNotification : TaxableNotification {
     companion object {
         val TYPE =
             NotificationType(
-                ClaimShopForLightmansCurrency.location("claim_trade"), ::ClaimNotification)
+                ClaimShopForLightmansCurrency.location("claim_trade"), ::ClaimNotification
+            )
 
         init {
             NotificationAPI.registerNotification(TYPE)
@@ -130,13 +132,12 @@ class ClaimTradeEditTab(menu: ITraderStorageMenu) : TraderStorageTab(menu) {
     }
 
     class Display(screen: Any, commonTab: ClaimTradeEditTab?) :
-        TraderStorageClientTab<ClaimTradeEditTab>(screen, commonTab),
-        TradeButtonArea.InteractionConsumer {
+        TraderStorageClientTab<ClaimTradeEditTab>(screen, commonTab) {
 
         lateinit var tradeDisplay: TradeButton
-        lateinit var priceSelection: MoneyValueWidget
+        var priceSelection: MoneyValueWidget? = null
 
-        override fun tabButtonVisible(): Boolean {
+        override fun tabVisible(): Boolean {
             return false
         }
 
@@ -144,54 +145,40 @@ class ClaimTradeEditTab(menu: ITraderStorageMenu) : TraderStorageTab(menu) {
             return true
         }
 
-        override fun getIcon(): IconData = IconAndButtonUtil.ICON_TRADELIST
+        override fun getIcon(): IconData = IconUtil.ICON_TRADELIST
 
         override fun getTooltip() = LCText.TOOLTIP_TRADER_EDIT_TRADES.get()
 
         override fun initialize(screenArea: ScreenArea, firstOpen: Boolean) {
             val trade = commonTab.getTrade()
-            tradeDisplay = addChild(TradeButton(menu::getContext, { trade }) {})
+            tradeDisplay =
+                addChild(
+                    TradeButton.builder()
+                        .position(screenArea.pos.offset(10, 18))
+                        .context(menu::getContext)
+                        .trade { trade }
+                        .build())
             tradeDisplay.position = screenArea.pos.offset(10, 18)
             priceSelection =
                 addChild(
-                    MoneyValueWidget(
-                        screenArea.pos.offset(15, 55),
-                        if (firstOpen) null else priceSelection,
-                        trade?.cost ?: MoneyValue.empty(),
-                        ::onValueChanged))
-            priceSelection.drawBG = false
+                    MoneyValueWidget.builder()
+                        .position(screenArea.pos.offset(15, 55))
+                        .oldIfNotFirst(firstOpen, priceSelection)
+                        .startingValue(trade?.cost ?: MoneyValue.empty())
+                        .valueHandler(::onValueChanged)
+                        .build()
+                )
         }
 
         override fun renderBG(gui: EasyGuiGraphics) {
             // TODO 渲染地图
         }
 
-        override fun onTradeButtonInputInteraction(
-            trader: TraderData,
-            trade: TradeData,
-            index: Int,
-            mouseButton: Int
-        ) {}
-
         fun onValueChanged(value: MoneyValue) = commonTab.setPrice(value)
-
-        override fun onTradeButtonOutputInteraction(
-            p0: TraderData?,
-            p1: TradeData?,
-            p2: Int,
-            p3: Int
-        ) {}
-
-        override fun onTradeButtonInteraction(
-            p0: TraderData?,
-            p1: TradeData?,
-            p2: Int,
-            p3: Int,
-            p4: Int
-        ) {}
     }
 
-    @OnlyIn(Dist.CLIENT) override fun createClientTab(screen: Any) = Display(screen, this)
+    @OnlyIn(Dist.CLIENT)
+    override fun createClientTab(screen: Any) = Display(screen, this)
 
     override fun canOpen(player: Player) = true
 
@@ -225,10 +212,10 @@ class ClaimTradeEditTab(menu: ITraderStorageMenu) : TraderStorageTab(menu) {
 
 @OnlyIn(Dist.CLIENT)
 class ClaimTradeButtonRenderer(trade: ClaimTradeData) :
-    TradeRenderManager<ClaimTradeData>(trade), TradeButtonArea.InteractionConsumer {
+    TradeRenderManager<ClaimTradeData>(trade), TradeInteractionHandler {
     override fun tradeButtonWidth(context: TradeContext) = 132
 
-    override fun arrowPosition(context: TradeContext) = ScreenPosition.ofOptional(36, 1)!!
+    override fun arrowPosition(context: TradeContext) = ScreenPosition.ofOptional(36, 1)
 
     override fun inputDisplayArea(context: TradeContext) = DisplayData(1, 1, 34, 16)
 
@@ -236,7 +223,9 @@ class ClaimTradeButtonRenderer(trade: ClaimTradeData) :
         mutableListOf(
             DisplayEntry.of(
                 trade.cost,
-                if (context.isStorageMode) LCText.TOOLTIP_TRADE_EDIT_PRICE.getAsList() else null))
+                if (context.isStorageMode) LCText.TOOLTIP_TRADE_EDIT_PRICE.getAsList() else null
+            )
+        )
 
     override fun outputDisplayArea(context: TradeContext) = DisplayData(58, 1, 72, 16)
 
@@ -247,7 +236,11 @@ class ClaimTradeButtonRenderer(trade: ClaimTradeData) :
                 TextRenderUtil.TextFormatting.create(),
                 listOf(
                     Component.translatable(
-                        "gui.claim_shop_for_lightmans_currency.result", trade.pos))))
+                        "gui.claim_shop_for_lightmans_currency.result", trade.pos
+                    )
+                )
+            )
+        )
 
     //        mutableListOf<DisplayEntry>(
     //            TraderChunkDisplayEntry(
@@ -264,17 +257,18 @@ class ClaimTradeButtonRenderer(trade: ClaimTradeData) :
         if (!context.hasFunds(trade.cost)) alerts.add(AlertData.warn(LCText.TOOLTIP_CANNOT_AFFORD))
     }
 
-    override fun onTradeButtonInputInteraction(
+    override fun HandleTradeInputInteraction(
         trader: TraderData,
         trade: TradeData,
-        index: Int,
+        data: TradeInteractionData,
         mouseButton: Int
-    ) {}
+    ) {
+    }
 
-    override fun onTradeButtonOutputInteraction(
+    override fun HandleTradeOutputInteraction(
         trader: TraderData,
         trade: TradeData,
-        index: Int,
+        data: TradeInteractionData,
         mouseButton: Int
     ) {
         if (mouseButton == 0) {
@@ -283,13 +277,12 @@ class ClaimTradeButtonRenderer(trade: ClaimTradeData) :
         }
     }
 
-    override fun onTradeButtonInteraction(
+    override fun HandleOtherTradeInteraction(
         trader: TraderData,
         trade: TradeData,
-        localMouseX: Int,
-        localMouseY: Int,
-        mouseButton: Int
-    ) {}
+        data: TradeInteractionData
+    ) {
+    }
 }
 
 class TraderChunkDisplayEntry(
@@ -305,16 +298,17 @@ class TraderChunkDisplayEntry(
             (graphics as EasyGuiGraphicsAccessor).offset.x + x + 5,
             (graphics as EasyGuiGraphicsAccessor).offset.y + y + 19,
             84,
-            84)
+            84
+        )
     }
 
     override fun isMouseOver(x: Int, y: Int, data: DisplayData, mouseX: Int, mouseY: Int): Boolean {
         val left: Int = x + data.xOffset()
         val top: Int = y + data.yOffset()
         return mouseX >= left &&
-            mouseX < left + data.width() &&
-            mouseY >= top &&
-            mouseY < top + data.height()
+                mouseX < left + data.width() &&
+                mouseY >= top &&
+                mouseY < top + data.height()
     }
 }
 
@@ -326,7 +320,8 @@ class TraderChunkScreen(private val blockEntity: ClaimTraderBlockEntity) : BaseS
 
             if (screen == null) {
                 ClaimShopForLightmansCurrency.LOGGER.warn(
-                    "MapDimension data missing?? not opening chunk screen")
+                    "MapDimension data missing?? not opening chunk screen"
+                )
             }
 
             return screen

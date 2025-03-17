@@ -15,7 +15,7 @@ jobs:
           cache: 'gradle'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@v4
         with:
           cache-read-only: false
 
@@ -59,7 +59,7 @@ jobs:
           dependencies: |
             kotlin-for-forge
             lightmans-currency
-            ftb-chunks-forge#(ignore:modtinth)
+            ftb-chunks-forge
 
           java: |
             17

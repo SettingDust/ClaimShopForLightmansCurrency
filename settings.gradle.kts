@@ -12,7 +12,7 @@ apply("https://github.com/SettingDust/MinecraftGradleScripts/raw/main/parchmentm
 apply("https://github.com/SettingDust/MinecraftGradleScripts/raw/main/mixin.gradle.kts")
 
 dependencyResolutionManagement.versionCatalogs.named("catalog") {
-    library("lightmans-currency", "maven.modrinth", "lightmans-currency").version("$minecraft-2.2.2.2")
+    library("lightmans-currency", "maven.modrinth", "lightmans-currency").version("$minecraft-2.2.4.5")
 
     library("ftb-library", "dev.ftb.mods", "ftb-library-forge").version("2001.2.3")
     library("ftb-teams", "dev.ftb.mods", "ftb-teams-forge").version("2001.3.0")

@@ -17,12 +17,13 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderSt
 import io.github.lightman314.lightmanscurrency.api.traders.permissions.PermissionOption
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData
 import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.TradeComparisonResult
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.core.BasicTradeEditTab
+import io.github.lightman314.lightmanscurrency.common.util.IconData
+import io.github.lightman314.lightmanscurrency.common.util.IconUtil
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
@@ -33,7 +34,6 @@ import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.Level
 import net.minecraftforge.server.ServerLifecycleHooks
 import settingdust.lightmanscurrency.claimshop.ClaimShopForLightmansCurrency
-import java.util.function.Consumer
 
 data class ClaimTradeData(var pos: ChunkPos) : TradeData(true) {
     override fun getTradeDirection() = TradeDirection.SALE
@@ -42,19 +42,22 @@ data class ClaimTradeData(var pos: ChunkPos) : TradeData(true) {
 
     override fun compare(data: TradeData): TradeComparisonResult {
         ClaimShopForLightmansCurrency.LOGGER.warn(
-            "Attempting to compare claim trades, but claim trades do not support this interaction.")
+            "Attempting to compare claim trades, but claim trades do not support this interaction."
+        )
         return TradeComparisonResult()
     }
 
     override fun AcceptableDifferences(result: TradeComparisonResult): Boolean {
         ClaimShopForLightmansCurrency.LOGGER.warn(
-            "Attempting to determine if the claim trades differences are acceptable, but claim trades do not support this interaction.")
+            "Attempting to determine if the claim trades differences are acceptable, but claim trades do not support this interaction."
+        )
         return false
     }
 
     override fun GetDifferenceWarnings(differences: TradeComparisonResult): List<Component> {
         ClaimShopForLightmansCurrency.LOGGER.warn(
-            "Attempting to get warnings for different claim trades, but claim trades do not support this interaction.")
+            "Attempting to get warnings for different claim trades, but claim trades do not support this interaction."
+        )
         return listOf()
     }
 
@@ -62,9 +65,8 @@ data class ClaimTradeData(var pos: ChunkPos) : TradeData(true) {
 
     override fun OnInputDisplayInteraction(
         tab: BasicTradeEditTab,
-        clientHandler: Consumer<LazyPacketData.Builder>?,
         index: Int,
-        button: Int,
+        data: TradeInteractionData,
         heldItem: ItemStack
     ) {
         val traderData = tab.menu.trader
@@ -72,14 +74,14 @@ data class ClaimTradeData(var pos: ChunkPos) : TradeData(true) {
         val tradeIndex = traderData.tradeData.indexOf(this)
         if (tradeIndex < 0) return
         tab.sendOpenTabMessage(
-            TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex))
+            TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex)
+        )
     }
 
     override fun OnOutputDisplayInteraction(
         tab: BasicTradeEditTab,
-        clientHandler: Consumer<LazyPacketData.Builder>?,
         index: Int,
-        button: Int,
+        data: TradeInteractionData,
         heldItem: ItemStack
     ) {
         val traderData = tab.menu.trader
@@ -87,15 +89,13 @@ data class ClaimTradeData(var pos: ChunkPos) : TradeData(true) {
         val tradeIndex = traderData.tradeData.indexOf(this)
         if (tradeIndex < 0) return
         tab.sendOpenTabMessage(
-            TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex))
+            TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex)
+        )
     }
 
     override fun OnInteraction(
         tab: BasicTradeEditTab,
-        clientHandler: Consumer<LazyPacketData.Builder>?,
-        mouseX: Int,
-        mouseY: Int,
-        button: Int,
+        data: TradeInteractionData,
         heldItem: ItemStack
     ) {
         val traderData = tab.menu.trader
@@ -103,7 +103,8 @@ data class ClaimTradeData(var pos: ChunkPos) : TradeData(true) {
         val tradeIndex = traderData.tradeData.indexOf(this)
         if (tradeIndex < 0) return
         tab.sendOpenTabMessage(
-            TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex))
+            TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex)
+        )
     }
 
     override fun getAsNBT(): CompoundTag {
@@ -138,7 +139,7 @@ open class ClaimTraderData : TraderData {
 
     protected constructor(type: TraderType<ClaimTraderData>) : super(type)
 
-    override fun getIcon(): IconData = IconAndButtonUtil.ICON_TRADER
+    override fun getIcon(): IconData = IconUtil.ICON_TRADER
 
     override fun allowAdditionalUpgradeType(p0: UpgradeType) = false
 
@@ -176,27 +177,31 @@ open class ClaimTraderData : TraderData {
         if (slot == 0) trade
         else {
             ClaimShopForLightmansCurrency.LOGGER.warn(
-                "Can't get trade in index $slot in claim trade since there is only one trade")
+                "Can't get trade in index $slot in claim trade since there is only one trade"
+            )
             null
         }
 
     override fun addTrade(requestor: Player) {
         if (isClient) return
         ClaimShopForLightmansCurrency.LOGGER.warn(
-            "${requestor.name} attempted to add trade slot of a claim trader that has only 1 trade")
+            "${requestor.name} attempted to add trade slot of a claim trader that has only 1 trade"
+        )
     }
 
     override fun removeTrade(requestor: Player) {
         if (isClient) return
         ClaimShopForLightmansCurrency.LOGGER.warn(
-            "${requestor.name} attempted to remove trade slot of a claim trader that has only 1 trade")
+            "${requestor.name} attempted to remove trade slot of a claim trader that has only 1 trade"
+        )
     }
 
     override fun ExecuteTrade(context: TradeContext, tradeIndex: Int): TradeResult {
         require(tradeIndex == 0)
         if (!trade.isValid) {
             ClaimShopForLightmansCurrency.LOGGER.error(
-                "Trade $trade isn't a valid trade. Can't execute trade.")
+                "Trade $trade isn't a valid trade. Can't execute trade."
+            )
             return TradeResult.FAIL_INVALID_TRADE
         }
         if (!context.hasPlayerReference()) {
@@ -231,7 +236,8 @@ open class ClaimTraderData : TraderData {
                 buyer.player?.createCommandSourceStack()
                     ?: ServerLifecycleHooks.getCurrentServer().createCommandSourceStack(),
                 chunkDimPos,
-                false)
+                false
+            )
 
         val fakeData =
             FTBChunksAPI.api().manager.getPersonalData(ClaimShopForLightmansCurrency.FAKE_PROFILE.id)
@@ -244,6 +250,7 @@ open class ClaimTraderData : TraderData {
                 StandardProblem.NOT_ENOUGH_POWER -> {
                     TradeResult.FAIL_NO_OUTPUT_SPACE
                 }
+
                 else -> TradeResult.FAIL_INVALID_TRADE
             }
         }
@@ -268,7 +275,8 @@ open class ClaimTraderData : TraderData {
 
         pushNotification {
             ClaimNotification(
-                taxesPaid, trade, price, context.playerReference, this.notificationCategory)
+                taxesPaid, trade, price, context.playerReference, this.notificationCategory
+            )
         }
 
         this.runPostTradeEvent(trade, context, price, taxesPaid)
@@ -286,7 +294,8 @@ open class ClaimTraderData : TraderData {
             val level = ServerLifecycleHooks.getCurrentServer().getLevel(level)!!
             ClaimTraderBlockEntity.CLAIM_TRADER.getBlockEntity(level, pos)!!.flagAsLegitBreak()
             InventoryUtil.dumpContents(
-                level, pos, getContents(level, pos, level.getBlockState(pos), true))
+                level, pos, getContents(level, pos, level.getBlockState(pos), true)
+            )
             level.destroyBlock(pos, true)
         }
 
