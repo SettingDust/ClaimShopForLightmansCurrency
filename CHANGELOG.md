@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2025-05-06
+### :sparkles: New Features
+- [`ed86e37`](https://github.com/SettingDust/ClaimShopForLightmansCurrency/commit/ed86e37051d078353bf9708510c164aa1dbd44e1) - support the latest lightmans' currency 2.2.5.1c *(commit by [@SettingDust](https://github.com/SettingDust))*
+
+
 ## [0.2.0] - 2025-03-17
 ### :sparkles: New Features
 - [`fb45a6b`](https://github.com/SettingDust/ClaimShopForLightmansCurrency/commit/fb45a6ba6142c6fe4faab571ca655e154e466d95) - support the latest lightmans' currency *(commit by [@SettingDust](https://github.com/SettingDust))*
@@ -60,3 +65,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.1.0]: https://github.com/SettingDust/ClaimShopForLightmansCurrency/compare/0.0.0...0.1.0
 [0.1.1]: https://github.com/SettingDust/ClaimShopForLightmansCurrency/compare/0.1.0...0.1.1
 [0.2.0]: https://github.com/SettingDust/ClaimShopForLightmansCurrency/compare/0.1.1...0.2.0
+[0.2.1]: https://github.com/SettingDust/ClaimShopForLightmansCurrency/compare/0.2.0...0.2.1
