@@ -23,6 +23,7 @@ import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType
+import io.github.lightman314.lightmanscurrency.api.taxes.notifications.SingleLineTaxableNotification
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu
@@ -40,7 +41,6 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory
-import io.github.lightman314.lightmanscurrency.common.notifications.types.TaxableNotification
 import io.github.lightman314.lightmanscurrency.common.util.IconData
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil
 import net.minecraft.client.Minecraft
@@ -53,11 +53,10 @@ import net.minecraft.world.level.ChunkPos
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import settingdust.lightmanscurrency.claimshop.ClaimShopForLightmansCurrency
-import settingdust.lightmanscurrency.claimshop.mixin.EasyGuiGraphicsAccessor
 import java.util.function.Function
 import kotlin.jvm.optionals.getOrNull
 
-class ClaimNotification : TaxableNotification {
+class ClaimNotification : SingleLineTaxableNotification {
 
     companion object {
         val TYPE =
@@ -66,7 +65,7 @@ class ClaimNotification : TaxableNotification {
             )
 
         init {
-            NotificationAPI.registerNotification(TYPE)
+            NotificationAPI.API.RegisterNotification(TYPE)
         }
     }
 
@@ -295,8 +294,8 @@ class TraderChunkDisplayEntry(
         screen.draw(
             graphics.gui,
             ThemeManager.INSTANCE.activeTheme,
-            (graphics as EasyGuiGraphicsAccessor).offset.x + x + 5,
-            (graphics as EasyGuiGraphicsAccessor).offset.y + y + 19,
+            graphics.offset.x + x + 5,
+            graphics.offset.y + y + 19,
             84,
             84
         )

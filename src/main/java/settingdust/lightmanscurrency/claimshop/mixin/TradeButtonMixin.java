@@ -15,10 +15,11 @@ public abstract class TradeButtonMixin extends EasyButton {
         super(builder);
     }
 
-    @Shadow
+    @Shadow(remap = false)
     public abstract TradeRenderManager<?> getTradeRenderer();
 
-    @Shadow public abstract void HandleInteractionClick(
+    @Shadow(remap = false)
+    public abstract void HandleInteractionClick(
         final int mouseX,
         final int mouseY,
         final int button,
